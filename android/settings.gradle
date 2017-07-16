@@ -1,0 +1,3 @@
+rootProject.name = 'SMSTool'
+
+include ':app'
