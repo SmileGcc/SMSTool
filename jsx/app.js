@@ -3,12 +3,9 @@
 import React, { Component } from 'react';
 import { Provider, connect } from 'react-redux';
 import { Router, Scene } from 'react-native-router-flux';
-import configure from './store/configure';
-import {
-    Main
-} from './containers';
-
-const store = configure();
+import 'es6-symbol/implement';
+import store from './redux/store';
+import Main from './containers/main/container';
 
 class App extends Component {
     render() {
