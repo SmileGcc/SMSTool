@@ -64,10 +64,12 @@ let request = function (method, path, {params, data}) {
 
 let net = {
     //发送短信
-    sendSMS: function (params) {
+    sendSMS: function (telephone) {
+        let params = {telephone: telephone}
         return request('GET', 'sendSMS', {params: params});
     },
-    test: function (params) {
+    test: function (telephone) {
+        let params = {telephone: telephone}
         return request('GET', 'test.pub', {params: params});
     }
 
