@@ -1,12 +1,14 @@
 import {fromJS} from 'immutable';
 import net from '../../service/net';
 import asyncStorage from '../../service/asyncStorage';
+import sms from '../../service/sms';
 
 const initialState = fromJS({
-    sendResult: {},
+    sendStatus: false,
+    sendResponse: '',
     templateList: [],
-    addTemplateResult: false,
-    delTemplateResult: false
+    addTemplateStatus: false,
+    delTemplateStatus: false
 });
 
 // Actions
@@ -18,10 +20,10 @@ const DEL_TEMPLATE = 'MAIN/DEL_TEMPLATE';
 
 // Action creators
 export let MainActions = {
-    sendSMS: function (telephone) {
+    sendSMS: function (telephone, content) {
         return {
             type: SEND_SMS,
-            payload: net.sendSMS(telephone)
+            payload: sms.sendSMS(telephone, content)
         };
     },
     getTemplate: function () {
@@ -53,24 +55,28 @@ export let MainActions = {
 export default function MainReducer(state = initialState, action = {}) {
     switch (action.type) {
         case SEND_SMS:
-            if (action.payload) {
-                return state.set('sendResult', fromJS(action.payload));
+            console.log(111111);
+            console.log(action.payload);
+            if(!action.payload || !action.payload.status){
+                state = state.set('sendStatus', false);
+                return state.set('sendResponse', action.payload.result);
             }
-            return state;
+            state = state.set('sendStatus', true);
+            return state.set('sendResponse', action.payload.result);
         case GET_TEMPLATE:
             return state.set('templateList', fromJS(action.payload));
         case ADD_TEMPLATE:
             if(!action.payload || !action.payload.status){
-                return state.set('addTemplateResult', false);
+                return state.set('addTemplateStatus', false);
             }
-            state = state.set('addTemplateResult', true);
+            state = state.set('addTemplateStatus', true);
             return state.set('templateList', fromJS(action.payload.result));
         case DEL_TEMPLATE:
             console.log(action.payload)
             if(!action.payload || !action.payload.status){
-                return state.set('delTemplateResult', false);
+                return state.set('delTemplateStatus', false);
             }
-            state = state.set('delTemplateResult', true);
+            state = state.set('delTemplateStatus', true);
             return state.set('templateList', fromJS(action.payload.result));
         default:
             return state;

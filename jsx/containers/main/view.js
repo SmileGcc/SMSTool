@@ -7,7 +7,6 @@ import {
     TouchableOpacity,
     Modal,
     ListView,
-    AsyncStorage,
     KeyboardAvoidingView,
     ScrollView
 } from 'react-native';
@@ -15,30 +14,29 @@ import {Style} from './style';
 
 class MainView extends Component {
     static propTypes = {
-        sendResult: PropTypes.instanceOf(Immutable.Map)
+        sendStatus: PropTypes.bool,
+        sendResponse: PropTypes.string,
+        templateList: PropTypes.instanceOf(Immutable.Map),
+        addTemplateStatus: PropTypes.bool,
+        delTemplateStatus: PropTypes.bool
     };
 
     static defaultProps = {
-        sendResult: Immutable.Map()
+        sendStatus: false,
+        sendResponse: '',
+        templateList: Immutable.Map(),
+        addTemplateStatus: false,
+        delTemplateStatus: false
     };
 
     constructor(props) {
         super(props);
         let ds = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2});
-        let result = ['hellotestesetetatestes123456789012345678901234567890',
-            '大家好才是好多哈花的发到各昂打工的高档lllfsdag更大的更更多是干暗示过啊啊第三个矮冬瓜','hellotestesetetatestes123456789012345678901234567890',
-            '大家好才是好多哈花的发到各昂打工的高档lllfsdag更大的更更多是干暗示过啊啊第三个矮冬瓜','hellotestesetetatestes123456789012345678901234567890',
-            '大家好才是好多哈花的发到各昂打工的高档lllfsdag更大的更更多是干暗示过啊啊第三个矮冬瓜','hellotestesetetatestes123456789012345678901234567890',
-            '大家好才是好多哈花的发到各昂打工的高档lllfsdag更大的更更多是干暗示过啊啊第三个矮冬瓜','hellotestesetetatestes123456789012345678901234567890',
-            '大家好才是好多哈花的发到各昂打工的高档lllfsdag更大的更更多是干暗示过啊啊第三个矮冬瓜','hellotestesetetatestes123456789012345678901234567890',
-            '大家好才是好多哈花的发到各昂打工的高档lllfsdag更大的更更多是干暗示过啊啊第三个矮冬瓜','hellotestesetetatestes123456789012345678901234567890',
-            '大家好才是好多哈花的发到各昂打工的高档lllfsdag更大的更更多是干暗示过啊啊第三个矮冬瓜','hellotestesetetatestes123456789012345678901234567890',
-            '大家好才是好多哈花的发到各昂打工的高档lllfsdag更大的更更多是干暗示过啊啊第三个矮冬瓜','hellotestesetetatestes123456789012345678901234567890',
-            '大家好才是好多哈花的发到各昂打工的高档lllfsdag更大的更更多是干暗示过啊啊第三个矮冬瓜']
         this.state = {
-            sendResult:{},
             showTemplateList: false,
             dataSource: ds.cloneWithRows([]),
+            smsPhoneCode: '',
+            smsTelephone: '',
             smsContent: ''
         }
     }
@@ -48,7 +46,27 @@ class MainView extends Component {
 
     sendSMS = ()=>{
         this.blurTextInput();
-        AsyncStorage.clear()
+        if(!this.state.smsPhoneCode){
+            alert('国际区号不能为空');
+            return;
+        }
+        if(!this.state.telephone){
+            alert('手机号码不能为空');
+            return;
+        }
+        if(!this.state.smsContent){
+            alert('短信内容不能为空');
+            return;
+        }
+        let toPhone = this.state.smsPhoneCode + this.state.telephone;
+        this.props.MainActions.sendSMS(toPhone, this.state.smsContent).then(()=>{
+            if(this.props.main.get('sendResult')){
+                alert('短信发送成功');
+            }else{
+                let error = '短信发送失败, Error:' + this.props.main.get('sendResponse')
+                alert(error);
+            }
+        });
     };
 
     showTemplateList = ()=>{
@@ -79,7 +97,7 @@ class MainView extends Component {
             alert('内容不能为空');
         }else{
             this.props.MainActions.addTemplate(this.state.smsContent).then(()=>{
-                if(this.props.main.get('addTemplateResult')){
+                if(this.props.main.get('addTemplateStatus')){
                     alert('保存模板成功');
                 }else{
                     alert('保存模板失败');
@@ -92,7 +110,7 @@ class MainView extends Component {
         let templateList = this.props.main.get('templateList').toArray();
         templateList.splice(parseInt(id), 1);
         this.props.MainActions.deleteTemplate(templateList).then(()=>{
-            if(this.props.main.get('delTemplateResult')){
+            if(this.props.main.get('delTemplateStatus')){
                 alert('删除模板成功');
                 let list = this.props.main.get('templateList');
                 let templateList = list.toArray();
@@ -175,6 +193,10 @@ class MainView extends Component {
                     <View style={Style.main_top_area_code}>
                         <Text style={Style.main_key}>区号</Text>
                         <TextInput
+                            value={this.state.smsPhoneCode}
+                            onChangeText={(text) => {
+                              this.setState({smsPhoneCode:text});
+                            }}
                             ref="codeTextInput"
                             underlineColorAndroid="transparent"
                             style={[Style.main_value, Style.main_area_code_value]}/>
@@ -182,6 +204,10 @@ class MainView extends Component {
                     <View style={Style.main_top_telephone}>
                         <Text style={Style.main_key}>手机号:</Text>
                         <TextInput
+                            value={this.state.telephone}
+                            onChangeText={(text) => {
+                              this.setState({telephone:text});
+                            }}
                             ref="phoneTextInput"
                             underlineColorAndroid="transparent"
                             style={[Style.main_value, Style.main_telephone_value]}/>
@@ -211,14 +237,12 @@ class MainView extends Component {
                                 <Text>保存模板</Text>
                             </View>
                         </TouchableOpacity>
+                        <TouchableOpacity onPress={this.sendSMS}>
+                            <View style={Style.main_middle_template}>
+                                <Text>发送短信</Text>
+                            </View>
+                        </TouchableOpacity>
                     </View>
-                </View>
-                <View style={Style.main_footer}>
-                    <TouchableOpacity onPress={this.sendSMS}>
-                        <View style={Style.main_footer_button}>
-                            <Text>发送短信</Text>
-                        </View>
-                    </TouchableOpacity>
                 </View>
                 {
                     this.renderTemplateList()

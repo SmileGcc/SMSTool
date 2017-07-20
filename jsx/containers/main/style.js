@@ -53,8 +53,8 @@ export let Style = StyleSheet.create(
         },
         main_middle_template: {
             marginLeft: 10,
-            marginTop: 10,
-            height: 30,
+            marginTop: 20,
+            height: 35,
             width: 80,
             backgroundColor: '#63B8FF',
             borderRadius: 10,
