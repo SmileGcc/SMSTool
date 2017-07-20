@@ -60,7 +60,7 @@ class MainView extends Component {
         }
         let toPhone = this.state.smsPhoneCode + this.state.telephone;
         this.props.MainActions.sendSMS(toPhone, this.state.smsContent).then(()=>{
-            if(this.props.main.get('sendResult')){
+            if(this.props.main.get('sendStatus')){
                 alert('短信发送成功');
             }else{
                 let error = '短信发送失败, Error:' + this.props.main.get('sendResponse')
