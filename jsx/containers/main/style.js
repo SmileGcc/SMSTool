@@ -23,22 +23,44 @@ export let Style = StyleSheet.create(
             padding: 4
         },
         main_top: {
-            flexDirection: 'row',
-            marginTop:20,
-            marginBottom: 20
+            marginTop:10,
+            marginBottom: 10
         },
-        main_top_area_code: {
+        main_top_item:{
+            flexDirection: 'row',
+            marginTop:10,
+            marginBottom: 10
+        },
+        main_top_item1:{
+            marginTop:10
+        },
+        main_top_left: {
             flexDirection: 'row'
         },
         main_area_code_value: {
             width: 60
         },
-        main_top_telephone: {
+        main_api_key_value: {
+            width: 85
+        },
+        main_top_right: {
             flexDirection: 'row',
             marginLeft: 10
         },
         main_telephone_value: {
             width: 150
+        },
+        main_api_secret_value: {
+            width: 85
+        },
+        main_top_account: {
+            marginLeft: 40,
+            height: 35,
+            width: 80,
+            backgroundColor: '#63B8FF',
+            borderRadius: 10,
+            alignItems: 'center',
+            justifyContent: 'center'
         },
         main_middle: {
             flexDirection: 'row'
@@ -96,6 +118,16 @@ export let Style = StyleSheet.create(
         main_template_list_content: {
             alignItems: 'center',
             width: Dimensions.get('window').width-80,
+            padding: 10
+        },
+        main_template_list_key:{
+            alignItems: 'center',
+            width: (Dimensions.get('window').width-80)/2,
+            padding: 10
+        },
+        main_template_list_secret:{
+            alignItems: 'center',
+            width: (Dimensions.get('window').width-80)/2,
             padding: 10
         },
         main_template_list_delete: {

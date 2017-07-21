@@ -22,7 +22,6 @@ let request = function (method, path, {params, body}) {
         headers: {'Content-Type': 'application/x-www-form-urlencoded'}
     };
     let url = getUrl(path, params);
-    console.log(url)
     return fetch(url, option)
         .then(res => res.text())
         .then(function (res) {
@@ -37,6 +36,8 @@ let request = function (method, path, {params, body}) {
                 let errObj = {
                     '0101': '无效的command参数',
                     '0100': '请求参数错误',
+                    '0104': '账号信息错误',
+                    '0106': '账号密码错误',
                     '0107' : '账号金额或信用额度不足',
                     '0108': 'IP 未在白名单中',
                     '0110': '目标号码格式错误或群发号码数量超过100个',
@@ -59,11 +60,11 @@ let request = function (method, path, {params, body}) {
 };
 
 let sms = {
-    sendSMS: function (telephone, content) {
+    sendSMS: function (smsApiKey, smsApiSecret, telephone, content) {
         let params = {
             command: 'MT_REQUEST',
-            cpid: config.cpid,
-            cppwd: config.cppwd,
+            cpid: smsApiKey,
+            cppwd: smsApiSecret,
             da: telephone,
             sm: content
         };
