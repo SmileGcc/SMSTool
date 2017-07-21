@@ -403,8 +403,7 @@ class MainView extends Component {
                 </View>
                 <View style={Style.main_middle}>
                     <View style={Style.main_middle_content}>
-                        <Text style={Style.main_key}>内容1:</Text>
-                        {/*TextInput multiline bug*/}
+                        <Text style={Style.main_key}>内容:</Text>
                         <TextInput
                             multiline={true}
                             ref="contentTextInput"
