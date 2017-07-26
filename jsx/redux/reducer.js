@@ -1,9 +1,11 @@
 import {Map, fromJS} from 'immutable';
 import {loop, combineReducers} from 'redux-loop';
 import main from '../containers/main/state';
+import account from '../containers/account/state';
 
 const reducers = {
-    main
+    main,
+    account
 };
 
 const immutableStateContainer = Map();

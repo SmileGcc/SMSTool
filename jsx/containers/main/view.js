@@ -11,6 +11,9 @@ import {
     ScrollView,
     AsyncStorage
 } from 'react-native';
+import {
+    Actions
+} from 'react-native-router-flux';
 import {Style} from './style';
 
 class MainView extends Component {
@@ -20,9 +23,8 @@ class MainView extends Component {
         templateList: PropTypes.instanceOf(Immutable.Map),
         addTemplateStatus: PropTypes.bool,
         delTemplateStatus: PropTypes.bool,
-        accountList: PropTypes.instanceOf(Immutable.Map),
-        addAccountStatus: PropTypes.bool,
-        delAccountStatus: PropTypes.bool
+        selectedAccountId: PropTypes.number,
+        accountList: PropTypes.instanceOf(Immutable.Map)
     };
 
     static defaultProps = {
@@ -31,33 +33,75 @@ class MainView extends Component {
         templateList: Immutable.Map(),
         addTemplateStatus: false,
         delTemplateStatus: false,
-        accountList: Immutable.Map(),
-        addAccountStatus: false,
-        delAccountStatus: false
+        selectedAccountId: 0,
+        accountList: Immutable.Map()
     };
 
     constructor(props) {
         super(props);
         let templateDs = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2});
-        let accountDs = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2});
         this.state = {
             showTemplateList: false,
             templateDataSource: templateDs.cloneWithRows([]),
             smsPhoneCode: '',
             smsTelephone: '',
             smsContent: '',
-            showAccountList: false,
             smsApiKey: '',
             smsApiSecret: '',
-            accountDataSource: accountDs.cloneWithRows([]),
+            showAddAccount: false
         }
     }
 
     componentWillMount() {
+        this.props.AccountActions.getSelectAccount().then(()=>{
+            this.props.AccountActions.getAccount().then(()=>{
+                let id = this.props.account.get('selectedAccountId');
+                let list = this.props.account.get('accountList');
+                let accountList = list.toArray();
+                if(accountList.length == 0){
+                    this.setState({
+                        showAddAccount: true,
+                        smsApiKey: '',
+                        smsApiSecret: ''
+                    });
+                    return
+                }
+                if(accountList[id]){
+                    let account = accountList[id].split('&&&&&');
+                    this.setState({
+                        smsApiKey: account[0],
+                        smsApiSecret: account[1]
+                    });
+                }
+            });
+        });
+    }
+
+    componentWillReceiveProps(nextProps) {
+        if(this.props.account.get('selectedAccountId') != nextProps.account.get('selectedAccountId')
+        || this.props.account.get('accountList') != nextProps.account.get('accountList')){
+            let id = nextProps.account.get('selectedAccountId');
+            let list = nextProps.account.get('accountList');
+            let accountList = list.toArray();
+            if(accountList.length == 0){
+                this.setState({
+                    showAddAccount: true,
+                    smsApiKey: '',
+                    smsApiSecret: ''
+                });
+                return
+            }
+            if(accountList[id]){
+                let account = accountList[id].split('&&&&&');
+                this.setState({
+                    smsApiKey: account[0],
+                    smsApiSecret: account[1]
+                });
+            }
+        }
     }
 
     sendSMS = ()=>{
-        // this.blurTextInput();
         if(!this.state.smsApiKey){
             alert('账号key不能为空');
             return;
@@ -107,16 +151,7 @@ class MainView extends Component {
         this.setState({showTemplateList:false, smsContent: value});
     };
 
-    blurTextInput = ()=>{
-        // this.refs.contentTextInput.blur();
-        // this.refs.codeTextInput.blur();
-        // this.refs.phoneTextInput.blur();
-        // this.refs.keyTextInput.blur();
-        // this.refs.secretTextInput.blur();
-    };
-
     saveTemplate = ()=>{
-        // this.blurTextInput();
         if(!this.state.smsContent){
             alert('内容不能为空');
         }else{
@@ -211,39 +246,7 @@ class MainView extends Component {
     };
 
     showAccountList = ()=>{
-        this.props.MainActions.getAccount().then(()=>{
-            let list = this.props.main.get('accountList');
-            let accountList = list.toArray();
-            this.setState({
-                accountDataSource: this.state.accountDataSource.cloneWithRows(accountList),
-                showAccountList:true
-            });
-        });
-    };
-
-    selectAccount = (value) =>{
-        this.setState({
-            showAccountList:false,
-            smsApiKey: value[0],
-            smsApiSecret: value[1]
-        });
-    };
-
-    deleteAccount = (id)=>{
-        let accountList = this.props.main.get('accountList').toArray();
-        accountList.splice(parseInt(id), 1);
-        this.props.MainActions.deleteAccount(accountList).then(()=>{
-            if(this.props.main.get('delAccountStatus')){
-                alert('删除账号成功');
-                let list = this.props.main.get('accountList');
-                let accountList = list.toArray();
-                this.setState({
-                    accountDataSource: this.state.accountDataSource.cloneWithRows(accountList)
-                });
-            }else{
-                alert('删除账号失败');
-            }
-        })
+        Actions.account();
     };
 
     saveAccount = ()=>{
@@ -253,85 +256,63 @@ class MainView extends Component {
         if(!this.state.smsApiSecret){
             return alert('ApiSecret不能为空');
         }
-        this.props.MainActions.addAccount(this.state.smsApiKey, this.state.smsApiSecret).then(()=>{
-            if(this.props.main.get('addAccountStatus')){
+        this.props.AccountActions.addAccount(this.state.smsApiKey, this.state.smsApiSecret).then(()=>{
+            if(this.props.account.get('addAccountStatus')){
                 alert('保存账号成功');
+                this.setState({
+                    showAddAccount: false
+                });
             }else{
                 alert('保存账号失败');
             }
         })
     };
 
-    renderAccountList = ()=>{
+    renderAddAccount = ()=>{
         return(
             <Modal
                 animationType={"slide"}
-                transparent={false}
-                visible={this.state.showAccountList}
-                onRequestClose={() => {this.setState({showAccountList:false})}}>
-                <ListView
-                    enableEmptySections={true}
-                    dataSource={this.state.accountDataSource}
-                    renderHeader={() =>{
-                        return(
-                            <View>
-                                <View style={Style.main_template_list_delete}>
-                                    <TouchableOpacity onPress={() => {this.setState({showAccountList:false})}}>
-                                        <Text style={{color: 'red'}}>退出</Text>
-                                    </TouchableOpacity>
-                                </View>
-                                <View style={Style.main_template_list_line}/>
-                                <View style={Style.main_template_list}>
-                                    <View style={Style.main_template_list_id}>
-                                        <Text>序号</Text>
-                                    </View>
-                                    <View style={Style.main_template_list_item_line}/>
-                                    <View style={Style.main_template_list_key}>
-                                        <Text>API Key</Text>
-                                    </View>
-                                    <View style={Style.main_template_list_item_line}/>
-                                    <View style={Style.main_template_list_secret}>
-                                        <Text>API Secret</Text>
-                                    </View>
-                                    <View style={Style.main_template_list_item_line}/>
-                                    <View style={Style.main_template_list_delete}>
-                                        <Text>操作</Text>
-                                    </View>
-                                </View>
-                                <View style={Style.main_template_list_line}/>
-                            </View>
-                        )
-                    }}
-                    renderRow={(rowData, sectionID, rowID) =>{
-                        rowData = rowData.split('&&&&&');
-                        return(
-                             <TouchableOpacity onPress={this.selectAccount.bind(this,rowData)}>
-                                <View>
-                                    <View style={Style.main_template_list}>
-                                        <View style={Style.main_template_list_id}>
-                                            <Text>{rowID}</Text>
-                                        </View>
-                                        <View style={Style.main_template_list_item_line}/>
-                                        <View style={Style.main_template_list_key}>
-                                            <Text>{rowData[0]}</Text>
-                                        </View>
-                                        <View style={Style.main_template_list_item_line}/>
-                                        <View style={Style.main_template_list_secret}>
-                                            <Text>{rowData[1]}</Text>
-                                        </View>
-                                        <View style={Style.main_template_list_item_line}/>
-                                        <View style={Style.main_template_list_delete}>
-                                            <TouchableOpacity onPress={this.deleteAccount.bind(this, rowID)}>
-                                                <Text style={{color: 'red'}}>删除</Text>
-                                            </TouchableOpacity>
-                                        </View>
-                                    </View>
-                                    <View style={Style.main_template_list_line}/>
+                transparent={true}
+                visible={this.state.showAddAccount}
+                onRequestClose={() => {this.setState({showAddAccount:false})}}>
+                <View style={Style.account_add_account}>
+                    <View style={Style.account_add_account_content}>
+                        <View style={Style.account_add_account_item}>
+                            <Text style={Style.account_add_account_key}>APIKey:</Text>
+                            <TextInput
+                                value={this.state.smsApiKey}
+                                onChangeText={(text) => {
+                                  this.setState({smsApiKey:text});
+                                }}
+                                ref="keyTextInput"
+                                underlineColorAndroid="transparent"
+                                style={Style.account_add_account_value}/>
+                        </View>
+                        <View style={Style.account_add_account_item}>
+                            <Text style={Style.account_add_account_key}>APISecret:</Text>
+                            <TextInput
+                                value={this.state.smsApiSecret}
+                                onChangeText={(text) => {
+                                  this.setState({smsApiSecret:text});
+                                }}
+                                ref="secretTextInput"
+                                underlineColorAndroid="transparent"
+                                style={Style.account_add_account_value}/>
+                        </View>
+                        <View style={Style.account_add_account_footer}>
+                            <TouchableOpacity onPress={() => {this.setState({showAddAccount:false})}}>
+                                <View style={Style.account_add_button}>
+                                    <Text>取消</Text>
                                 </View>
                             </TouchableOpacity>
-                        )
-                    }}
-                />
+                            <TouchableOpacity onPress={() => {this.saveAccount()}}>
+                                <View style={Style.account_add_button}>
+                                    <Text>保存账号</Text>
+                                </View>
+                            </TouchableOpacity>
+                        </View>
+                    </View>
+                </View>
             </Modal>
         )
     };
@@ -342,37 +323,26 @@ class MainView extends Component {
                 <View style={Style.main_top}>
                     <View style={Style.main_top_item}>
                         <View style={Style.main_top_left}>
-                            <Text style={Style.main_key}>账号Key:</Text>
+                            <Text style={Style.main_key}>APIKey:</Text>
                             <TextInput
                                 value={this.state.smsApiKey}
-                                onChangeText={(text) => {
-                                  this.setState({smsApiKey:text});
-                                }}
-                                ref="keyTextInput"
+                                editable={false}
                                 underlineColorAndroid="transparent"
-                                style={[Style.main_value, Style.main_api_key_value]}/>
+                                style={[Style.main_value, Style.main_area_code_value]}/>
                         </View>
                         <View style={Style.main_top_right}>
-                            <Text style={Style.main_key}>账号Secret:</Text>
+                            <Text style={Style.main_key}>APISecret:</Text>
                             <TextInput
                                 value={this.state.smsApiSecret}
-                                onChangeText={(text) => {
-                                  this.setState({smsApiSecret:text});
-                                }}
-                                ref="secretTextInput"
+                                editable={false}
                                 underlineColorAndroid="transparent"
-                                style={[Style.main_value, Style.main_api_secret_value]}/>
+                                style={[Style.main_value, Style.main_area_code_value]}/>
                         </View>
                     </View>
                     <View style={Style.main_top_item}>
                         <TouchableOpacity onPress={this.showAccountList}>
-                            <View style={Style.main_top_account}>
-                                <Text>账号选择</Text>
-                            </View>
-                        </TouchableOpacity>
-                        <TouchableOpacity onPress={this.saveAccount}>
-                            <View style={Style.main_top_account}>
-                                <Text>保存账号</Text>
+                            <View style={Style.main_top_setting}>
+                                <Text>账号设置</Text>
                             </View>
                         </TouchableOpacity>
                     </View>
@@ -440,7 +410,7 @@ class MainView extends Component {
                     this.renderTemplateList()
                 }
                 {
-                    this.renderAccountList()
+                    this.renderAddAccount()
                 }
             </ScrollView>
         );
