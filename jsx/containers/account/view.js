@@ -15,14 +15,14 @@ import {Style} from './style';
 
 class AccountView extends Component {
     static propTypes = {
-        accountList: PropTypes.instanceOf(Immutable.Map),
+        accountList: PropTypes.instanceOf(Immutable.List),
         addAccountStatus: PropTypes.bool,
         delAccountStatus: PropTypes.bool,
         selectedAccountId: PropTypes.number
     };
 
     static defaultProps = {
-        accountList: Immutable.Map(),
+        accountList: Immutable.List(),
         addAccountStatus: false,
         delAccountStatus: false,
         selectedAccountId: 0
@@ -94,7 +94,7 @@ class AccountView extends Component {
                 }
                 let list = this.props.account.get('accountList');
                 let accountList = list.toArray();
-                accountList[id] = accountList[id] + '&&&&&selected';
+                accountList[selectedAccountId] = accountList[selectedAccountId] + '&&&&&selected';
                 this.setState({
                     accountDataSource: this.state.accountDataSource.cloneWithRows(accountList)
                 });
@@ -216,7 +216,6 @@ class AccountView extends Component {
                         )
                     }}
                     renderRow={(rowData, sectionID, rowID) =>{
-                        console.log(rowData);
                         rowData = rowData.split('&&&&&');
                         let style = {color: 'black'};
                         if(rowData[2] && rowData[2] == 'selected'){

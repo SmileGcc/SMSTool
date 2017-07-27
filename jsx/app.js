@@ -6,6 +6,7 @@ import 'es6-symbol/implement';
 import store from './redux/store';
 import Main from './containers/main/container';
 import Account from './containers/account/container';
+import SendHistory from './containers/sendHistory/container';
 
 class App extends Component {
     render() {
@@ -21,8 +22,13 @@ class App extends Component {
                         />
                         <Scene
                             key="account"
-                            title="SMSTool"
+                            title="账号设置"
                             component={Account}
+                        />
+                        <Scene
+                            key="sendHistory"
+                            title="发送记录"
+                            component={SendHistory}
                         />
                     </Scene>
                 </Router>

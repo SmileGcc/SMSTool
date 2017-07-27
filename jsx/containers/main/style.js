@@ -35,7 +35,7 @@ export let Style = StyleSheet.create(
             flexDirection: 'row'
         },
         main_area_code_value: {
-            width: 60
+            width: 80
         },
         main_top_right: {
             flexDirection: 'row',

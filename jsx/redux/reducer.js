@@ -2,10 +2,12 @@ import {Map, fromJS} from 'immutable';
 import {loop, combineReducers} from 'redux-loop';
 import main from '../containers/main/state';
 import account from '../containers/account/state';
+import sendHistory from '../containers/sendHistory/state';
 
 const reducers = {
     main,
-    account
+    account,
+    sendHistory
 };
 
 const immutableStateContainer = Map();

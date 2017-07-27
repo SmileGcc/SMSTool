@@ -1,5 +1,4 @@
 import {fromJS} from 'immutable';
-import net from '../../service/net';
 import asyncStorage from '../../service/asyncStorage';
 import sms from '../../service/sms';
 

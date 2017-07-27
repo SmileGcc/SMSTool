@@ -20,21 +20,21 @@ class MainView extends Component {
     static propTypes = {
         sendStatus: PropTypes.bool,
         sendResponse: PropTypes.string,
-        templateList: PropTypes.instanceOf(Immutable.Map),
+        templateList: PropTypes.instanceOf(Immutable.List),
         addTemplateStatus: PropTypes.bool,
         delTemplateStatus: PropTypes.bool,
         selectedAccountId: PropTypes.number,
-        accountList: PropTypes.instanceOf(Immutable.Map)
+        accountList: PropTypes.instanceOf(Immutable.List)
     };
 
     static defaultProps = {
         sendStatus: false,
         sendResponse: '',
-        templateList: Immutable.Map(),
+        templateList: Immutable.List(),
         addTemplateStatus: false,
         delTemplateStatus: false,
         selectedAccountId: 0,
-        accountList: Immutable.Map()
+        accountList: Immutable.List()
     };
 
     constructor(props) {
@@ -78,14 +78,13 @@ class MainView extends Component {
     }
 
     componentWillReceiveProps(nextProps) {
-        if(this.props.account.get('selectedAccountId') != nextProps.account.get('selectedAccountId')
-        || this.props.account.get('accountList') != nextProps.account.get('accountList')){
+        if( this.props.account.get('selectedAccountId') != nextProps.account.get('selectedAccountId')
+            || this.props.account.get('accountList') != nextProps.account.get('accountList')){
             let id = nextProps.account.get('selectedAccountId');
             let list = nextProps.account.get('accountList');
             let accountList = list.toArray();
             if(accountList.length == 0){
                 this.setState({
-                    showAddAccount: true,
                     smsApiKey: '',
                     smsApiSecret: ''
                 });
@@ -129,6 +128,7 @@ class MainView extends Component {
         this.props.MainActions.sendSMS(smsApiKey, smsApiSecret,toPhone, smsContent).then(()=>{
             if(this.props.main.get('sendStatus')){
                 alert('短信发送成功');
+                this.props.SendHistoryActions.addSendHistory(smsApiKey, smsApiSecret,toPhone, smsContent);
             }else{
                 let error = '短信发送失败, Error:' + this.props.main.get('sendResponse');
                 alert(error);
@@ -262,10 +262,15 @@ class MainView extends Component {
                 this.setState({
                     showAddAccount: false
                 });
+                // Actions.pop();
             }else{
                 alert('保存账号失败');
             }
         })
+    };
+
+    getSendHistory = ()=>{
+        Actions.sendHistory()
     };
 
     renderAddAccount = ()=>{
@@ -402,6 +407,11 @@ class MainView extends Component {
                         <TouchableOpacity onPress={this.sendSMS}>
                             <View style={Style.main_middle_template}>
                                 <Text>发送短信</Text>
+                            </View>
+                        </TouchableOpacity>
+                        <TouchableOpacity onPress={this.getSendHistory}>
+                            <View style={Style.main_middle_template}>
+                                <Text>发送记录</Text>
                             </View>
                         </TouchableOpacity>
                     </View>

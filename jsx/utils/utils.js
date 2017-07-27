@@ -69,6 +69,18 @@ const getDeviceAndroidLength = function (length) {
     return (length*Dimensions.get('window').height)/1280;
 };
 
+const getDateTime = function(){
+    let d = new Date();
+    let year = d.getFullYear(),
+        month = d.getMonth() + 1,
+        date = d.getDate(),
+        hour = d.getHours(),
+        minute = d.getMinutes(),
+        second = d.getSeconds();
+    return year+'-'+month+'-'+date+' '+hour+':'+minute+':'+second;
+};
+
+
 export default{
     checkNetworkState,
     addEventListener,
@@ -76,5 +88,6 @@ export default{
     getDeviceRatio,
     getDeviceAndroidLength,
     NOT_NETWORK,
-    TAG_NETWORK_CHANGE
+    TAG_NETWORK_CHANGE,
+    getDateTime
 }
