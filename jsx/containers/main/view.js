@@ -288,7 +288,6 @@ class MainView extends Component {
                                 onChangeText={(text) => {
                                   this.setState({smsApiKey:text});
                                 }}
-                                ref="keyTextInput"
                                 underlineColorAndroid="transparent"
                                 style={Style.account_add_account_value}/>
                         </View>
@@ -299,7 +298,6 @@ class MainView extends Component {
                                 onChangeText={(text) => {
                                   this.setState({smsApiSecret:text});
                                 }}
-                                ref="secretTextInput"
                                 underlineColorAndroid="transparent"
                                 style={Style.account_add_account_value}/>
                         </View>
@@ -327,38 +325,12 @@ class MainView extends Component {
                 <View style={Style.main_top}>
                     <View style={Style.main_top_item}>
                         <View style={Style.main_top_left}>
-                            <Text style={Style.main_key}>APIKey:</Text>
-                            <TextInput
-                                value={this.state.smsApiKey}
-                                editable={false}
-                                underlineColorAndroid="transparent"
-                                style={[Style.main_value, Style.main_area_code_value]}/>
-                        </View>
-                        <View style={Style.main_top_right}>
-                            <Text style={Style.main_key}>APISecret:</Text>
-                            <TextInput
-                                value={this.state.smsApiSecret}
-                                editable={false}
-                                underlineColorAndroid="transparent"
-                                style={[Style.main_value, Style.main_area_code_value]}/>
-                        </View>
-                    </View>
-                    <View style={Style.main_top_item}>
-                        <TouchableOpacity onPress={this.showAccountList}>
-                            <View style={Style.main_top_setting}>
-                                <Text>账号设置</Text>
-                            </View>
-                        </TouchableOpacity>
-                    </View>
-                    <View style={Style.main_top_item}>
-                        <View style={Style.main_top_left}>
                             <Text style={Style.main_key}>区号</Text>
                             <TextInput
                                 value={this.state.smsPhoneCode}
                                 onChangeText={(text) => {
                                   this.setState({smsPhoneCode:text});
                                 }}
-                                ref="codeTextInput"
                                 underlineColorAndroid="transparent"
                                 style={[Style.main_value, Style.main_area_code_value]}/>
                         </View>
@@ -367,9 +339,8 @@ class MainView extends Component {
                             <TextInput
                                 value={this.state.telephone}
                                 onChangeText={(text) => {
-                              this.setState({telephone:text});
-                            }}
-                                ref="phoneTextInput"
+                                  this.setState({telephone:text});
+                                }}
                                 underlineColorAndroid="transparent"
                                 style={[Style.main_value, Style.main_telephone_value]}/>
                         </View>
@@ -380,19 +351,24 @@ class MainView extends Component {
                         <Text style={Style.main_key}>内容:</Text>
                         <TextInput
                             multiline={true}
-                            ref="contentTextInput"
                             value={this.state.smsContent}
                             onChangeText={(text) => {
                               this.setState({smsContent:text});
                             }}
                             blurOnSubmit={false}
                             onSubmitEditing={(event) => {
+                                console.log(event.nativeEvent);
                                 this.setState({smsContent:event.nativeEvent.text + '\n'});
                             }}
                             underlineColorAndroid="transparent"
                             style={[Style.main_value, Style.main_content_value]}/>
                     </View>
                     <View>
+                        <TouchableOpacity onPress={this.showAccountList}>
+                            <View style={Style.main_middle_template}>
+                                <Text>账号设置</Text>
+                            </View>
+                        </TouchableOpacity>
                         <TouchableOpacity onPress={this.showTemplateList}>
                             <View style={Style.main_middle_template}>
                                 <Text>模板选择</Text>
@@ -403,14 +379,14 @@ class MainView extends Component {
                                 <Text>保存模板</Text>
                             </View>
                         </TouchableOpacity>
-                        <TouchableOpacity onPress={this.sendSMS}>
-                            <View style={Style.main_middle_template}>
-                                <Text>发送短信</Text>
-                            </View>
-                        </TouchableOpacity>
                         <TouchableOpacity onPress={this.getSendHistory}>
                             <View style={Style.main_middle_template}>
                                 <Text>发送记录</Text>
+                            </View>
+                        </TouchableOpacity>
+                        <TouchableOpacity onPress={this.sendSMS}>
+                            <View style={Style.main_middle_template}>
+                                <Text>发送短信</Text>
                             </View>
                         </TouchableOpacity>
                     </View>
