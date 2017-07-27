@@ -75,8 +75,14 @@ export default function AccountReducer(state = initialState, action = {}) {
             state = state.set('delAccountStatus', true);
             return state.set('accountList', fromJS(action.payload.result));
         case GET_SELECT_ACCOUNT:
-            return state.set('selectedAccountId', fromJS(action.payload.toString()));
+            if(action.payload.length > 0){
+                return state.set('selectedAccountId', fromJS(action.payload.toString()));
+            }
+            return state.set('selectedAccountId', 0);
         case SET_SELECT_ACCOUNT:
+            if(!action.payload || !action.payload.status){
+                return state;
+            }
             return state.set('selectedAccountId', fromJS(action.payload.result));
         default:
             return state;

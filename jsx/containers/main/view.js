@@ -262,7 +262,6 @@ class MainView extends Component {
                 this.setState({
                     showAddAccount: false
                 });
-                // Actions.pop();
             }else{
                 alert('保存账号失败');
             }
