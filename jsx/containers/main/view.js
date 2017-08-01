@@ -14,6 +14,7 @@ import {
 import {
     Actions
 } from 'react-native-router-flux';
+import debounce from 'debounce';
 import {Style} from './style';
 
 class MainView extends Component {
@@ -48,7 +49,31 @@ class MainView extends Component {
             smsContent: '',
             smsApiKey: '',
             smsApiSecret: '',
-            showAddAccount: false
+            showAddAccount: false,
+            cursorPosition: 0,
+            selection: {start:0,end:0}
+        };
+        this.onSubmitEditing = this.onSubmitEditing.bind(this);
+    }
+
+    onSubmitEditing = debounce(this._onSubmitEditingNote, 100, true);
+
+    _onSubmitEditingNote() {
+        const { smsContent, cursorPosition } = this.state;
+        let newText = smsContent;
+        const ar = newText.split('');
+        ar.splice(cursorPosition.start, 0, '\n');
+        newText = ar.join('');
+        if(cursorPosition.start === smsContent.length) {
+            this.setState({ smsContent: newText });
+        }else{
+            this.setState({
+                smsContent: newText,
+                selection: {
+                    start: cursorPosition.start + 1,
+                    end: cursorPosition.end + 1
+                }
+            });
         }
     }
 
@@ -356,10 +381,14 @@ class MainView extends Component {
                               this.setState({smsContent:text});
                             }}
                             blurOnSubmit={false}
-                            onSubmitEditing={(event) => {
-                                console.log(event.nativeEvent);
-                                this.setState({smsContent:event.nativeEvent.text + '\n'});
-                            }}
+                            onSubmitEditing={this.onSubmitEditing}
+                            onSelectionChange={(event) =>
+                                this.setState({
+                                    cursorPosition: event.nativeEvent.selection,
+                                    selection: event.nativeEvent.selection
+                                })
+                            }
+                            selection = {this.state.selection}
                             underlineColorAndroid="transparent"
                             style={[Style.main_value, Style.main_content_value]}/>
                     </View>
